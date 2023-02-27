@@ -1,0 +1,58 @@
+server:
+  port: ${SERVER_PORT:13011}
+  servlet:
+    context-path: /
+  tomcat:
+    uri-encoding: UTF-8
+    accept-count: 1000
+    threads:
+      max: 800
+      min-spare: 100
+
+# 用户配置
+user:
+  password:
+    # 密码最大错误次数
+    maxRetryCount: 5
+    # 密码锁定时间（默认10分钟）
+    lockTime: 10
+
+# Spring配置
+spring:
+  profiles:
+    active: ${env:dev}
+  servlet:
+    multipart:
+      # 单个文件大小
+      max-file-size: 100MB
+      # 设置总上传的文件大小
+      max-request-size: 500MB
+  main:
+    allow-circular-references: true
+  jackson:
+    default-property-inclusion: always
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher
+
+# token配置
+token:
+  # 令牌自定义标识
+  header: Authorization
+  # 令牌密钥
+  secret: abcdefghijklmnopqrstuvwxyz
+  expireTime: 30
+  refreshTime: 10
+
+# MyBatis Plus配置
+mybatis-plus:
+  # 搜索指定包别名
+  typeAliasesPackage: com.ycicic.**.entity
+  type-enums-package: com.ycicic.**.enums
+  # 配置mapper的扫描，找到所有的mapper.xml映射文件
+  mapperLocations: classpath*:mybatis/**/*Mapper.xml
+  # 加载全局的配置文件
+  configLocation: classpath:mybatis/mybatis-config.xml
+  global-config:
+    db-config:
+      logic-delete-field: deleted
