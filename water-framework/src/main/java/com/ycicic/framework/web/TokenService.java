@@ -16,11 +16,12 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 /**
- * TODO Token操作
+ * Token操作
  *
  * @author ycicic
  */
@@ -76,6 +77,12 @@ public class TokenService {
         redisCache.setCacheObject(userKey, loginUser, expireTime, TimeUnit.MINUTES);
     }
 
+    public void setLoginUser(BaseLoginUser loginUser) {
+        if (Objects.nonNull(loginUser) && StringUtils.isNotEmpty(loginUser.getToken())) {
+            refreshToken(loginUser);
+        }
+    }
+
     public BaseLoginUser getLoginUser(HttpServletRequest request) {
         // 获取请求携带的令牌
         String token = getToken(request);
@@ -99,9 +106,7 @@ public class TokenService {
      * @return 令牌
      */
     private String createToken(Map<String, Object> claims) {
-        return Jwts.builder()
-                .setClaims(claims)
-                .signWith(SignatureAlgorithm.HS512, secret).compact();
+        return Jwts.builder().setClaims(claims).signWith(SignatureAlgorithm.HS512, secret).compact();
     }
 
     /**
@@ -111,10 +116,7 @@ public class TokenService {
      * @return 数据声明
      */
     private Claims parseToken(String token) {
-        return Jwts.parser()
-                .setSigningKey(secret)
-                .parseClaimsJws(token)
-                .getBody();
+        return Jwts.parser().setSigningKey(secret).parseClaimsJws(token).getBody();
     }
 
     private String getTokenKey(String uuid) {

@@ -13,7 +13,7 @@ import java.util.List;
  * @author ycicic
  */
 @Data
-@ApiModel("路由信息")
+@ApiModel(description = "路由信息")
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class Router {
     /**

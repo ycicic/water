@@ -1,6 +1,7 @@
 package com.ycicic.framework.config.mybatis;
 
 import com.baomidou.mybatisplus.core.handlers.MetaObjectHandler;
+import com.ycicic.common.utils.SecurityUtils;
 import org.apache.ibatis.reflection.MetaObject;
 import org.springframework.context.annotation.Configuration;
 
@@ -18,8 +19,7 @@ public class WaterMetaObjectHandler implements MetaObjectHandler {
 
     @Override
     public void insertFill(MetaObject metaObject) {
-        // TODO 插入数据库获取 userId
-        Long userId = -1L;
+        Long userId = getUserId();
         strictInsertFill(metaObject, "createBy", Long.class, userId);
         strictInsertFill(metaObject, "createTime", LocalDateTime.class, LocalDateTime.now());
         strictInsertFill(metaObject, "updateBy", Long.class, userId);
@@ -28,8 +28,7 @@ public class WaterMetaObjectHandler implements MetaObjectHandler {
 
     @Override
     public void updateFill(MetaObject metaObject) {
-        // TODO 更新数据库获取 userId
-        Long userId = -1L;
+        Long userId = getUserId();
         strictUpdateFill(metaObject, "updateBy", Long.class, userId);
         strictUpdateFill(metaObject, "updateTime", LocalDateTime.class, LocalDateTime.now());
     }
@@ -40,8 +39,15 @@ public class WaterMetaObjectHandler implements MetaObjectHandler {
         if (Objects.nonNull(obj)) {
             metaObject.setValue(fieldName, obj);
         }
-
         return this;
+    }
+
+    private Long getUserId() {
+        try {
+            return SecurityUtils.getLoginUserId();
+        } catch (Exception e) {
+            return -1L;
+        }
     }
 
 }

@@ -12,7 +12,7 @@ import org.apache.commons.lang3.StringUtils;
  * @author ycicic
  */
 @Data
-@ApiModel("路由显示信息")
+@ApiModel(description = "路由显示信息")
 public class Meta {
     /**
      * 设置该路由在侧边栏和面包屑中展示的名字

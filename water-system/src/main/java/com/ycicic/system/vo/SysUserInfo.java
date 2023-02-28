@@ -16,7 +16,7 @@ import java.io.Serializable;
  * @author ycicic
  */
 @Data
-@ApiModel("PC端用户信息")
+@ApiModel(description = "PC端用户信息")
 public class SysUserInfo implements Serializable {
 
     private static final long serialVersionUID = 6846698536406801255L;

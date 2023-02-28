@@ -12,7 +12,7 @@ import java.io.Serializable;
  * @author ycicic
  */
 @Data
-@ApiModel("响应信息")
+@ApiModel(description = "响应信息")
 public class Response<T> implements Serializable {
     private static final long serialVersionUID = -338818066492385802L;
 

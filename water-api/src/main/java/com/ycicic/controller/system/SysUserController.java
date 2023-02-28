@@ -4,15 +4,18 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.ycicic.common.core.vo.Response;
 import com.ycicic.common.exception.ServiceException;
 import com.ycicic.common.utils.SecurityUtils;
+import com.ycicic.system.entity.SysRole;
 import com.ycicic.system.entity.SysUser;
+import com.ycicic.system.param.AuthRoleSaveParam;
 import com.ycicic.system.param.SysUserPageParam;
 import com.ycicic.system.param.SysUserSaveParam;
+import com.ycicic.system.service.SysRoleService;
 import com.ycicic.system.service.SysUserService;
 import com.ycicic.system.vo.SysUserVo;
+import com.ycicic.system.vo.UserRole;
+import com.ycicic.system.vo.UserRoleVo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -30,12 +33,19 @@ public class SysUserController {
 
     private SysUserService userService;
 
+    private SysRoleService roleService;
+
     @Autowired
     public void setUserService(SysUserService userService) {
         this.userService = userService;
     }
 
-    @GetMapping("page")
+    @Autowired
+    public void setRoleService(SysRoleService roleService) {
+        this.roleService = roleService;
+    }
+
+    @GetMapping("/page")
     @ApiOperation("用户列表-分页查询")
     public Response<IPage<SysUserVo>> page(SysUserPageParam param) {
         IPage<SysUser> userPage = userService.page(param);
@@ -44,13 +54,14 @@ public class SysUserController {
     }
 
     @GetMapping("/{id}")
+    @ApiOperation("用户-详情")
     public Response<SysUserVo> info(@PathVariable("id") Long id) {
         SysUser user = userService.getById(id);
         SysUserVo userVo = SysUserVo.getBy(user);
         return Response.success(userVo);
     }
 
-    @PostMapping("save")
+    @PostMapping("/save")
     @ApiOperation("用户-保存")
     public Response<?> save(@RequestBody SysUserSaveParam param) {
         Long userId = param.getId();
@@ -60,6 +71,11 @@ public class SysUserController {
             checkAdmin(userId);
             userService.updateById(sysUser);
         } else {
+            SysUser byUserName = userService.getByUserName(sysUser.getUserName());
+            if (Objects.nonNull(byUserName)) {
+                throw new ServiceException("用户账号已存在");
+            }
+
             String password = sysUser.getPassword();
             String encryptPassword = SecurityUtils.encryptPassword(password);
             sysUser.setPassword(encryptPassword);
@@ -102,6 +118,36 @@ public class SysUserController {
         ids.forEach(this::checkAdmin);
 
         userService.removeByIds(ids);
+        return Response.success();
+    }
+
+    @GetMapping("/authRole/{userId}")
+    @ApiOperation("用户-查询绑定角色")
+    public Response<UserRoleVo> getAuthRole(@PathVariable("userId") Long userId) {
+        SysUser user = userService.getById(userId);
+        List<UserRole> allRoles = roleService.list().stream().map(UserRole::getBy).collect(Collectors.toList());
+        List<SysRole> userRoles = roleService.queryByUserId(userId);
+
+        for (UserRole allRole : allRoles) {
+            for (SysRole userRole : userRoles) {
+                if (allRole.getId().equals(userRole.getId())) {
+                    allRole.setFlag(true);
+                }
+            }
+        }
+
+        allRoles = SecurityUtils.isAdmin(userId) ? allRoles : allRoles.stream().filter(UserRole::isAdmin).collect(Collectors.toList());
+
+        UserRoleVo userRoleVo = new UserRoleVo();
+        userRoleVo.setUser(SysUserVo.getBy(user));
+        userRoleVo.setRoles(allRoles);
+
+        return Response.success(userRoleVo);
+    }
+
+    @PostMapping("/authRole")
+    public Response<?> saveAuthRole(@RequestBody AuthRoleSaveParam param) {
+        userService.reBindRole(param.getUserId(),param.getRoleIds());
         return Response.success();
     }
 

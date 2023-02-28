@@ -6,6 +6,8 @@ import com.ycicic.system.entity.SysUser;
 import com.ycicic.system.enums.UserStatusEnum;
 import com.ycicic.system.param.SysUserPageParam;
 
+import java.util.List;
+
 /**
  * @author ycicic
  */
@@ -18,4 +20,10 @@ public interface SysUserService extends IService<SysUser> {
     void changeStatus(Long userId, UserStatusEnum status);
 
     void resetPwd(Long userId, String password);
+
+    Long countByRoleId(Long roleId);
+
+    void reBindRole(Long userId, List<Long> roleIds);
+
+    void bindRole(Long userId, List<Long> roleIds);
 }

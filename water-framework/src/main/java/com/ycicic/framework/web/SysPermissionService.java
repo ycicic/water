@@ -30,23 +30,6 @@ public class SysPermissionService {
     }
 
     /**
-     * 获取角色权限
-     *
-     * @param user 用户信息
-     * @return 角色权限
-     */
-    public Set<String> getRolePermission(SysUserInfo user) {
-        Set<String> roles = new HashSet<>();
-        // 管理员拥有所有权限
-        if (user.isAdmin()) {
-            roles.add("admin");
-        } else {
-            roles.addAll(sysRoleService.selectRolePermissionByUser(user.getId()));
-        }
-        return roles;
-    }
-
-    /**
      * 获取菜单权限
      *
      * @param user 用户信息

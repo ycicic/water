@@ -16,7 +16,7 @@ import java.time.LocalDateTime;
  * @author ycicic
  */
 @Data
-@ApiModel("用户信息-展示对象")
+@ApiModel(description = "用户信息-展示对象")
 public class SysUserVo {
 
     @ApiModelProperty("用户ID")

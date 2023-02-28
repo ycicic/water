@@ -10,10 +10,12 @@ import com.ycicic.system.param.SysUserPageParam;
 import com.ycicic.system.service.SysUserService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -68,6 +70,24 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
         byId.setPassword(password);
 
         updateById(byId);
+    }
+
+    @Override
+    public Long countByRoleId(Long roleId) {
+        return baseMapper.countByRoleId(roleId);
+    }
+
+    @Override
+    public void reBindRole(Long userId, List<Long> roleIds) {
+        baseMapper.deleteUserRoleByUserId(userId);
+        bindRole(userId, roleIds);
+    }
+
+    @Override
+    public void bindRole(Long userId, List<Long> roleIds) {
+        if (!CollectionUtils.isEmpty(roleIds)) {
+            baseMapper.bindRole(userId, roleIds);
+        }
     }
 
 }

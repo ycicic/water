@@ -9,7 +9,7 @@ import lombok.Data;
  * @author ycicic
  */
 @Data
-@ApiModel("分页查询参数")
+@ApiModel(description = "分页查询参数")
 public class PageParam {
 
     @ApiModelProperty("当前页数")

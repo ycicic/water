@@ -13,7 +13,7 @@ import org.springframework.beans.BeanUtils;
  * @author ycicic
  */
 @Data
-@ApiModel("用户信息-保存参数")
+@ApiModel(description = "用户信息-保存参数")
 public class SysUserSaveParam implements EntityParam<SysUser> {
 
     @ApiModelProperty("用户ID")

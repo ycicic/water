@@ -12,14 +12,11 @@ import java.util.Set;
  */
 @Data
 @Builder
-@ApiModel("系统用户信息")
+@ApiModel(description = "系统用户信息")
 public class SysUserDetail {
 
     @ApiModelProperty("系统用户")
     private SysUserInfo user;
-
-    @ApiModelProperty("角色集合")
-    private Set<String> roles;
 
     @ApiModelProperty("权限集合")
     private Set<String> permissions;

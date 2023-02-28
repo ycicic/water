@@ -2,6 +2,7 @@ package com.ycicic.system.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.ycicic.system.entity.SysMenu;
+import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 
 import java.util.List;
@@ -20,7 +21,7 @@ public interface SysMenuMapper extends BaseMapper<SysMenu> {
             "  and r.status = 0\n" +
             "  and m.deleted = 0\n" +
             "  and ur.user_id = #{userId}")
-    List<String> selectMenuPermsByUser(Long userId);
+    List<String> selectMenuPermsByUser(@Param("userId") Long userId);
 
     @Select("select distinct m.id,\n" +
             "                m.parent_id,\n" +
@@ -70,5 +71,5 @@ public interface SysMenuMapper extends BaseMapper<SysMenu> {
             "  and m.deleted = 0\n" +
             "  and ro.status = 0\n" +
             "order by m.parent_id, m.order_num")
-    List<SysMenu> selectMenuTreeByUser(Long userId);
+    List<SysMenu> selectMenuTreeByUser(@Param("userId") Long userId);
 }

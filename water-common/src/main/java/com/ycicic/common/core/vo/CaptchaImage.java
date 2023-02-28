@@ -12,7 +12,7 @@ import java.io.Serializable;
  */
 @Data
 @AllArgsConstructor
-@ApiModel("验证码图片")
+@ApiModel(description = "验证码图片")
 public class CaptchaImage implements Serializable {
 
     private static final long serialVersionUID = -5344415323579994490L;

@@ -1,7 +1,7 @@
 package com.ycicic.system.param;
 
 import com.ycicic.common.core.param.PageParam;
-import com.ycicic.system.enums.UserStatusEnum;
+import com.ycicic.system.enums.WhetherEnum;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -14,20 +14,14 @@ import java.time.LocalDate;
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-@ApiModel(description = "用户分页查询参数")
-public class SysUserPageParam extends PageParam {
+@ApiModel(description = "角色分页查询参数")
+public class SysRolePageParam extends PageParam {
 
-    @ApiModelProperty("用户账号")
-    private String userName;
+    @ApiModelProperty("角色名称")
+    private String roleName;
 
-    @ApiModelProperty("用户昵称")
-    private String nickName;
-
-    @ApiModelProperty("电话")
-    private String phone;
-
-    @ApiModelProperty("用户状态")
-    private UserStatusEnum status;
+    @ApiModelProperty("状态")
+    private WhetherEnum status;
 
     @ApiModelProperty("创建时间-起始")
     private LocalDate beginCreate;

@@ -10,7 +10,7 @@ import lombok.Data;
  * @author ycicic
  */
 @Data
-@ApiModel("登录参数")
+@ApiModel(description = "登录参数")
 public class LoginParam {
 
     @ApiModelProperty("用户名")

@@ -68,9 +68,8 @@ public class SysLoginController {
     public Response<SysUserDetail> userInfo() {
         SysLoginUser loginUser = (SysLoginUser) SecurityUtils.getLoginUser();
         SysUserInfo user = loginUser.getUser();
-        Set<String> roles = permissionService.getRolePermission(user);
         Set<String> permissions = permissionService.getMenuPermission(user);
-        return Response.success(SysUserDetail.builder().user(user).roles(roles).permissions(permissions).build());
+        return Response.success(SysUserDetail.builder().user(user).permissions(permissions).build());
     }
 
     @ApiOperation("获取路由信息")
