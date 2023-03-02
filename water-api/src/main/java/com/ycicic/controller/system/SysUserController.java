@@ -46,7 +46,7 @@ public class SysUserController {
     }
 
     @GetMapping("/page")
-    @ApiOperation("用户列表-分页查询")
+    @ApiOperation("分页查询用户列表")
     public Response<IPage<SysUserVo>> page(SysUserPageParam param) {
         IPage<SysUser> userPage = userService.page(param);
         IPage<SysUserVo> voPage = userPage.convert(SysUserVo::getBy);
@@ -54,7 +54,7 @@ public class SysUserController {
     }
 
     @GetMapping("/{id}")
-    @ApiOperation("用户-详情")
+    @ApiOperation("查询用户详情")
     public Response<SysUserVo> info(@PathVariable("id") Long id) {
         SysUser user = userService.getById(id);
         SysUserVo userVo = SysUserVo.getBy(user);
@@ -62,7 +62,7 @@ public class SysUserController {
     }
 
     @PostMapping("/save")
-    @ApiOperation("用户-保存")
+    @ApiOperation("保存用户")
     public Response<?> save(@RequestBody SysUserSaveParam param) {
         Long userId = param.getId();
         SysUser sysUser = param.toEntity();
@@ -86,7 +86,7 @@ public class SysUserController {
     }
 
     @PostMapping("/changeStatus")
-    @ApiOperation("用户-修改状态")
+    @ApiOperation("修改用户状态")
     public Response<?> changeStatus(@RequestBody SysUserSaveParam param) {
         checkAdmin(param.getId());
         userService.changeStatus(param.getId(), param.getStatus());
@@ -94,7 +94,7 @@ public class SysUserController {
     }
 
     @PostMapping("/resetPwd")
-    @ApiOperation("用户-修改密码")
+    @ApiOperation("修改用户密码")
     public Response<?> resetPwd(@RequestBody SysUserSaveParam param) {
         try {
             checkAdmin(param.getId());
@@ -108,7 +108,7 @@ public class SysUserController {
     }
 
     @PostMapping("/remove/{ids}")
-    @ApiOperation("用户-批量删除")
+    @ApiOperation("批量删除用户")
     public Response<?> remove(@PathVariable("ids") List<Long> ids) {
         Long loginUserId = SecurityUtils.getLoginUserId();
 
@@ -121,8 +121,8 @@ public class SysUserController {
         return Response.success();
     }
 
-    @GetMapping("/authRole/{userId}")
-    @ApiOperation("用户-查询绑定角色")
+    @GetMapping("/auth/role/{userId}")
+    @ApiOperation("查询用户绑定角色")
     public Response<UserRoleVo> getAuthRole(@PathVariable("userId") Long userId) {
         SysUser user = userService.getById(userId);
         List<UserRole> allRoles = roleService.list().stream().map(UserRole::getBy).collect(Collectors.toList());
@@ -136,7 +136,7 @@ public class SysUserController {
             }
         }
 
-        allRoles = SecurityUtils.isAdmin(userId) ? allRoles : allRoles.stream().filter(UserRole::isAdmin).collect(Collectors.toList());
+        allRoles = SecurityUtils.isAdmin(userId) ? allRoles : allRoles.stream().filter((r) -> !r.isAdmin()).collect(Collectors.toList());
 
         UserRoleVo userRoleVo = new UserRoleVo();
         userRoleVo.setUser(SysUserVo.getBy(user));
@@ -145,9 +145,10 @@ public class SysUserController {
         return Response.success(userRoleVo);
     }
 
-    @PostMapping("/authRole")
+    @ApiOperation("为用户授权角色")
+    @PostMapping("/auth/role")
     public Response<?> saveAuthRole(@RequestBody AuthRoleSaveParam param) {
-        userService.reBindRole(param.getUserId(),param.getRoleIds());
+        userService.reAuthRole(param.getUserId(), param.getRoleIds());
         return Response.success();
     }
 

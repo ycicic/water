@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.ycicic.system.entity.SysUser;
 import com.ycicic.system.enums.UserStatusEnum;
 import com.ycicic.system.mapper.SysUserMapper;
+import com.ycicic.system.param.AllocatedUserPageParam;
 import com.ycicic.system.param.SysUserPageParam;
 import com.ycicic.system.service.SysUserService;
 import org.apache.commons.lang3.StringUtils;
@@ -78,16 +79,26 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
     }
 
     @Override
-    public void reBindRole(Long userId, List<Long> roleIds) {
+    public void reAuthRole(Long userId, List<Long> roleIds) {
         baseMapper.deleteUserRoleByUserId(userId);
-        bindRole(userId, roleIds);
+        authRole(userId, roleIds);
     }
 
     @Override
-    public void bindRole(Long userId, List<Long> roleIds) {
+    public void authRole(Long userId, List<Long> roleIds) {
         if (!CollectionUtils.isEmpty(roleIds)) {
             baseMapper.bindRole(userId, roleIds);
         }
+    }
+
+    @Override
+    public IPage<SysUser> pageAllocated(AllocatedUserPageParam param) {
+        return baseMapper.pageAllocated(param.getPage(), param.getRoleId(), param.getUserName(), param.getPhone());
+    }
+
+    @Override
+    public IPage<SysUser> pageUnallocated(AllocatedUserPageParam param) {
+        return baseMapper.pageUnallocated(param.getPage(), param.getRoleId(), param.getUserName(), param.getPhone());
     }
 
 }

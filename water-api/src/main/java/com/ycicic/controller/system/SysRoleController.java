@@ -2,7 +2,6 @@ package com.ycicic.controller.system;
 
 import cn.hutool.core.text.StrFormatter;
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.ycicic.common.core.domain.BaseLoginUser;
 import com.ycicic.common.core.vo.Response;
 import com.ycicic.common.exception.ServiceException;
 import com.ycicic.common.utils.SecurityUtils;
@@ -10,14 +9,16 @@ import com.ycicic.framework.web.SysPermissionService;
 import com.ycicic.framework.web.TokenService;
 import com.ycicic.system.domain.SysLoginUser;
 import com.ycicic.system.entity.SysRole;
-import com.ycicic.system.param.SysRolePageParam;
-import com.ycicic.system.param.SysRoleSaveParam;
+import com.ycicic.system.entity.SysUser;
+import com.ycicic.system.param.*;
 import com.ycicic.system.service.SysRoleService;
 import com.ycicic.system.service.SysUserService;
 import com.ycicic.system.vo.SysRoleVo;
+import com.ycicic.system.vo.SysUserVo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -60,7 +61,7 @@ public class SysRoleController {
     }
 
     @GetMapping("page")
-    @ApiOperation("角色列表-分页查询")
+    @ApiOperation("分页查询角色列表")
     public Response<IPage<SysRoleVo>> page(SysRolePageParam param) {
         IPage<SysRole> rolePage = roleService.page(param);
         IPage<SysRoleVo> roleVoPage = rolePage.convert(SysRoleVo::getBy);
@@ -68,7 +69,7 @@ public class SysRoleController {
     }
 
     @GetMapping("{id}")
-    @ApiOperation("角色-详情")
+    @ApiOperation("查询角色详情")
     public Response<SysRoleVo> info(@PathVariable("id") Long id) {
         SysRole role = roleService.getById(id);
         SysRoleVo roleVo = SysRoleVo.getBy(role);
@@ -76,7 +77,8 @@ public class SysRoleController {
     }
 
     @PostMapping("save")
-    @ApiOperation("角色-保存")
+    @ApiOperation("保存角色")
+    @Transactional(rollbackFor = RuntimeException.class)
     public Response<?> save(@RequestBody SysRoleSaveParam param) {
         Long id = param.getId();
         String roleName = param.getRoleName();
@@ -89,8 +91,10 @@ public class SysRoleController {
         }
 
         SysRole role = param.toEntity();
+        List<Long> menuIds = param.getMenuIds();
         if (Objects.nonNull(id)) {
             roleService.updateById(role);
+            roleService.updateRoleMenu(role.getId(), menuIds);
             SysLoginUser loginUser = (SysLoginUser) SecurityUtils.getLoginUser();
 
             if (!SecurityUtils.isAdmin(loginUser.getUserId())) {
@@ -99,13 +103,21 @@ public class SysRoleController {
             }
         } else {
             roleService.save(role);
+            roleService.saveRoleMenu(role.getId(), menuIds);
         }
+        return Response.success();
+    }
 
+    @PostMapping("/changeStatus")
+    @ApiOperation("修改角色状态")
+    public Response<?> changeStatus(@RequestBody SysRoleSaveParam param) {
+        checkAdmin(param.getId());
+        roleService.changeStatus(param.getId(), param.getStatus());
         return Response.success();
     }
 
     @PostMapping("/remove/{ids}")
-    @ApiOperation("角色-批量删除")
+    @ApiOperation("批量删除角色")
     public Response<?> remove(@PathVariable("ids") List<Long> ids) {
         for (Long roleId : ids) {
             checkAdmin(roleId);
@@ -116,6 +128,36 @@ public class SysRoleController {
             }
         }
         roleService.removeByIds(ids);
+        return Response.success();
+    }
+
+    @ApiOperation("查询已分配角色用户列表")
+    @GetMapping("/auth/allocated/page")
+    public Response<IPage<SysUserVo>> pageAllocated(AllocatedUserPageParam param) {
+        IPage<SysUser> userPage = userService.pageAllocated(param);
+        IPage<SysUserVo> userVoPage = userPage.convert(SysUserVo::getBy);
+        return Response.success(userVoPage);
+    }
+
+    @ApiOperation("查询未分配角色用户列表")
+    @GetMapping("/auth/unallocated/page")
+    public Response<IPage<SysUserVo>> pageUnallocated(AllocatedUserPageParam param) {
+        IPage<SysUser> userPage = userService.pageUnallocated(param);
+        IPage<SysUserVo> userVoPage = userPage.convert(SysUserVo::getBy);
+        return Response.success(userVoPage);
+    }
+
+    @ApiOperation("批量取消用户授权角色")
+    @PostMapping("/auth/cancel")
+    public Response<?> cancelAuthUser(@RequestBody AuthUserSaveParam param) {
+        roleService.cancelAuthUserBatch(param.getRoleId(), param.getUserIds());
+        return Response.success();
+    }
+
+    @ApiOperation("将角色授权给用户")
+    @PostMapping("/auth/user")
+    public Response<?> saveAuthRole(@RequestBody AuthUserSaveParam param) {
+        roleService.authUserBatch(param.getRoleId(), param.getUserIds());
         return Response.success();
     }
 

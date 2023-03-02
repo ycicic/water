@@ -32,7 +32,7 @@ public class SysRole extends BaseEntity {
     /**
      * 角色排序
      */
-    private String roleSort;
+    private Integer roleSort;
 
     /**
      * 角色状态是否可用

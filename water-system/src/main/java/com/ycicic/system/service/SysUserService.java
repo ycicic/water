@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.ycicic.system.entity.SysUser;
 import com.ycicic.system.enums.UserStatusEnum;
+import com.ycicic.system.param.AllocatedUserPageParam;
 import com.ycicic.system.param.SysUserPageParam;
 
 import java.util.List;
@@ -23,7 +24,11 @@ public interface SysUserService extends IService<SysUser> {
 
     Long countByRoleId(Long roleId);
 
-    void reBindRole(Long userId, List<Long> roleIds);
+    void reAuthRole(Long userId, List<Long> roleIds);
 
-    void bindRole(Long userId, List<Long> roleIds);
+    void authRole(Long userId, List<Long> roleIds);
+
+    IPage<SysUser> pageAllocated(AllocatedUserPageParam param);
+
+    IPage<SysUser> pageUnallocated(AllocatedUserPageParam param);
 }

@@ -10,6 +10,8 @@ import com.ycicic.system.param.SysRolePageParam;
 import com.ycicic.system.service.SysRoleService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 import java.io.Serializable;
 import java.time.LocalDate;
@@ -57,6 +59,38 @@ public class SysRoleServiceImpl extends ServiceImpl<SysRoleMapper, SysRole> impl
         wrapper.eq(SysRole::getRoleName, roleName);
         wrapper.last("limit 1");
         return getOne(wrapper);
+    }
+
+    @Override
+    @Transactional(rollbackFor = RuntimeException.class)
+    public void updateRoleMenu(Long roleId, List<Long> menuIds) {
+        baseMapper.removeRoleMenu(roleId);
+        saveRoleMenu(roleId, menuIds);
+    }
+
+    @Override
+    public void saveRoleMenu(Long roleId, List<Long> menuIds) {
+        if (CollectionUtils.isEmpty(menuIds)) {
+            return;
+        }
+        baseMapper.saveRoleMenu(roleId, menuIds);
+    }
+
+    @Override
+    public void changeStatus(Long id, WhetherEnum status) {
+        SysRole role = getById(id);
+        role.setStatus(status);
+        updateById(role);
+    }
+
+    @Override
+    public void cancelAuthUserBatch(Long roleId, List<Long> userIds) {
+        baseMapper.cancelAuthUserBatch(roleId, userIds);
+    }
+
+    @Override
+    public void authUserBatch(Long roleId, List<Long> userIds) {
+        baseMapper.authUserBatch(roleId, userIds);
     }
 
     @Override

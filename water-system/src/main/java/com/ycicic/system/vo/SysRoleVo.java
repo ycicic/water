@@ -27,7 +27,7 @@ public class SysRoleVo {
     private String roleName;
 
     @ApiModelProperty("排序")
-    private String roleSort;
+    private Integer roleSort;
 
     @ApiModelProperty("状态")
     private WhetherEnum status;

@@ -2,19 +2,22 @@ package com.ycicic.system.service.impl;
 
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.ycicic.common.core.vo.TreeSelect;
 import com.ycicic.common.utils.SecurityUtils;
 import com.ycicic.system.entity.SysMenu;
 import com.ycicic.system.mapper.SysMenuMapper;
 import com.ycicic.system.service.SysMenuService;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @author ycicic
  */
 @Service
-public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper,SysMenu> implements SysMenuService {
+public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> implements SysMenuService {
 
     @Override
     public Set<String> selectMenuPermsByUser(Long userId) {
@@ -37,7 +40,40 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper,SysMenu> imple
         } else {
             menus = baseMapper.selectMenuTreeByUser(userId);
         }
-        return getChildPerms(menus,0);
+        return getChildPerms(menus, 0);
+    }
+
+    @Override
+    public List<SysMenu> queryMenuListByUser(Long userId) {
+        List<SysMenu> menus;
+
+        if (SecurityUtils.isAdmin(userId)) {
+            menus = baseMapper.selectMenuListAll();
+        } else {
+            menus = baseMapper.selectMenuListByUser(userId);
+        }
+        return getChildPerms(menus, 0);
+    }
+
+    @Override
+    public List<TreeSelect> buildTree(List<SysMenu> menuList) {
+        return menuList.stream().map(this::buildTree).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<Long> queryIdListByRoleId(Long roleId) {
+        return baseMapper.queryIdListByRoleId(roleId);
+    }
+
+    private TreeSelect buildTree(SysMenu menu) {
+        TreeSelect treeSelect = new TreeSelect();
+        treeSelect.setId(menu.getId());
+        treeSelect.setLabel(menu.getMenuName());
+        List<SysMenu> children = menu.getChildren();
+        if (!CollectionUtils.isEmpty(children)) {
+            treeSelect.setChildren(children.stream().map(this::buildTree).collect(Collectors.toList()));
+        }
+        return treeSelect;
     }
 
     private List<SysMenu> getChildPerms(List<SysMenu> list, int parentId) {

@@ -8,6 +8,8 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import org.springframework.beans.BeanUtils;
 
+import java.util.List;
+
 /**
  * @author ycicic
  */
@@ -26,6 +28,9 @@ public class SysRoleSaveParam implements EntityParam<SysRole> {
 
     @ApiModelProperty("状态")
     private WhetherEnum status;
+
+    @ApiModelProperty("菜单ID集合")
+    private List<Long> menuIds;
 
     @ApiModelProperty("备注")
     private String remark;

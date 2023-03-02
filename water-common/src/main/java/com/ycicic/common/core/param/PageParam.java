@@ -22,4 +22,8 @@ public class PageParam {
         return new Page<>(currentPage, pageSize);
     }
 
+    public Page<Object> getPage() {
+        return new Page<>(currentPage, pageSize);
+    }
+
 }
