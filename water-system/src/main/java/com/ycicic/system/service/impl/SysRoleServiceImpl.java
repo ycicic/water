@@ -94,6 +94,11 @@ public class SysRoleServiceImpl extends ServiceImpl<SysRoleMapper, SysRole> impl
     }
 
     @Override
+    public Long countByMenuId(Long menuId) {
+        return baseMapper.countByMenuId(menuId);
+    }
+
+    @Override
     public boolean removeByIds(Collection<? extends Serializable> idList) {
         baseMapper.deleteRoleMenu(idList);
         return super.removeByIds(idList);

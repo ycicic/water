@@ -1,11 +1,15 @@
 package com.ycicic.system.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.ycicic.common.core.vo.TreeSelect;
 import com.ycicic.common.utils.SecurityUtils;
 import com.ycicic.system.entity.SysMenu;
+import com.ycicic.system.enums.WhetherEnum;
 import com.ycicic.system.mapper.SysMenuMapper;
+import com.ycicic.system.param.SysMenuQueryParam;
 import com.ycicic.system.service.SysMenuService;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -18,6 +22,13 @@ import java.util.stream.Collectors;
  */
 @Service
 public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> implements SysMenuService {
+
+    @Override
+    public List<SysMenu> queryMenuListByUser(Long userId, SysMenuQueryParam param) {
+        List<SysMenu> menuList = queryByUser(userId, param);
+
+        return getChildPerms(menuList, 0);
+    }
 
     @Override
     public Set<String> selectMenuPermsByUser(Long userId) {
@@ -44,15 +55,25 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
     }
 
     @Override
-    public List<SysMenu> queryMenuListByUser(Long userId) {
-        List<SysMenu> menus;
+    public List<SysMenu> queryByUser(Long userId, SysMenuQueryParam param) {
+        List<SysMenu> menuList;
+
+        String menuName = param.getMenuName();
+        WhetherEnum status = param.getStatus();
+
+        QueryWrapper<SysMenu> wrapper = new QueryWrapper<>();
+        wrapper.eq("1", "1");
+
+        LambdaQueryWrapper<SysMenu> lambda = wrapper.lambda();
+        lambda.like(Objects.nonNull(menuName), SysMenu::getMenuName, menuName);
+        lambda.eq(Objects.nonNull(status), SysMenu::getStatus, status);
 
         if (SecurityUtils.isAdmin(userId)) {
-            menus = baseMapper.selectMenuListAll();
+            menuList = baseMapper.selectMenuList(lambda);
         } else {
-            menus = baseMapper.selectMenuListByUser(userId);
+            menuList = baseMapper.selectMenuListByUser(userId, lambda);
         }
-        return getChildPerms(menus, 0);
+        return menuList;
     }
 
     @Override
@@ -63,6 +84,21 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
     @Override
     public List<Long> queryIdListByRoleId(Long roleId) {
         return baseMapper.queryIdListByRoleId(roleId);
+    }
+
+    @Override
+    public SysMenu getByName(String menuName) {
+        LambdaQueryWrapper<SysMenu> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(SysMenu::getMenuName, menuName);
+        wrapper.last("limit 1");
+        return getOne(wrapper);
+    }
+
+    @Override
+    public List<SysMenu> queryByParentId(Long id) {
+        LambdaQueryWrapper<SysMenu> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(SysMenu::getParentId, id);
+        return list(wrapper);
     }
 
     private TreeSelect buildTree(SysMenu menu) {

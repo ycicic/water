@@ -28,4 +28,6 @@ public interface SysRoleService extends IService<SysRole> {
     void cancelAuthUserBatch(Long roleId, List<Long> userIds);
 
     void authUserBatch(Long roleId, List<Long> userIds);
+
+    Long countByMenuId(Long menuId);
 }

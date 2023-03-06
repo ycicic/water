@@ -57,4 +57,7 @@ public interface SysRoleMapper extends BaseMapper<SysRole> {
             "</foreach\n>" +
             "</script>")
     void authUserBatch(@Param("roleId") Long roleId, @Param("userIds") List<Long> userIds);
+
+    @Select("select count(1) from sys_role_menu where menu_id = #{menuId}")
+    Long countByMenuId(@Param("menuId") Long menuId);
 }

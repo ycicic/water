@@ -1,5 +1,6 @@
 package com.ycicic.system.mapper;
 
+import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.ycicic.system.entity.SysMenu;
 import org.apache.ibatis.annotations.Param;
@@ -99,9 +100,10 @@ public interface SysMenuMapper extends BaseMapper<SysMenu> {
             "                m.order_num,\n" +
             "                m.create_time\n" +
             "from sys_menu m\n" +
-            "where m.deleted = 0\n" +
+            "${ew.customSqlSegment}\n" +
+            "and m.deleted = 0\n" +
             "order by m.parent_id, m.order_num")
-    List<SysMenu> selectMenuListAll();
+    List<SysMenu> selectMenuList(@Param("ew") Wrapper<SysMenu> wrapper);
 
     @Select("select distinct m.id,\n" +
             "                m.parent_id,\n" +
@@ -123,9 +125,10 @@ public interface SysMenuMapper extends BaseMapper<SysMenu> {
             "         left join sys_user_role ur on rm.role_id = ur.role_id\n" +
             "         left join sys_role ro on ur.role_id = ro.id\n" +
             "         left join sys_user u on ur.user_id = u.id\n" +
-            "where u.id = #{userId} \n" +
+            "  ${ew.customSqlSegment}\n" +
+            "  and u.id = #{userId} \n" +
             "  and m.deleted = 0\n" +
             "  and ro.status = 0\n" +
             "order by m.parent_id, m.order_num")
-    List<SysMenu> selectMenuListByUser(Long userId);
+    List<SysMenu> selectMenuListByUser(@Param("userId") Long userId, @Param("ew") Wrapper<SysMenu> wrapper);
 }
