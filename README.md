@@ -16,6 +16,8 @@
 2. 角色管理：系统角色配置、为角色分配菜单权限、为角色授权用户等。
 3. 菜单管理：配置系统菜单，操作权限等。
 
+![image](https://user-images.githubusercontent.com/49850479/223314738-11fdda84-062a-4b4b-afb5-5fd7fa53da36.png)
+
 ## 开发
 
 1. 执行```/sql/water.sql```
